@@ -257,7 +257,11 @@
                         }
                     }
                 },
-                "security": [],
+                "security": [
+                    {
+                        "key": []
+                    }
+                ],
                 "servers": [
                     {
                         "url": "https://n-oel.herokuapp.com/api/v1",
