@@ -435,7 +435,7 @@
             "key": {
                 "type": "apiKey",
                 "description": "Provide a key to authenticate.",
-                "name": "x-key",
+                "name": "x-api-key",
                 "in": "header"
             }
         }
