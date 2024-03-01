@@ -12,7 +12,7 @@
         },
         "license": {
             "url": "https://n-oel.github.io",
-            "name": ".."
+            "name": "null"
         }
     },
     "servers": [
@@ -425,6 +425,14 @@
                         "type": "integer"
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "key": {
+                "type": "apiKey",
+                "description": "Provide a key to authenticate.",
+                "name": "x-key",
+                "in": "header"
             }
         }
     }
