@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist</title>
+    <link rel="shortcut icon" type="image/png" href="./favicon.png"/>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            color: #333;
+            font: 14px "Helvetica Neue", Helvetica, Arial, freesans, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0 0 30px 0;
+            color: #595851;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .error {
+            color: #c33;
+            padding: 15px;
+            background-color: #fee;
+            border: 1px solid #fcc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            color: #818079;
+            padding: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: #f8f8f5;
+            color: #595851;
+            font-weight: 500;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            position: relative;
+            user-select: none;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        th.sortable:hover {
+            background-color: #eee;
+        }
+
+        th.sortable::after {
+            content: ' ↕';
+            opacity: 0.4;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            opacity: 0.8;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            opacity: 0.8;
+        }
+
+        th.nowrap {
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        td.nowrap {
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #818079;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Playlist</h1>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="loading" class="loading">Loading...</div>
+        <div id="table-container" style="display: none;">
+            <table id="playlist-table">
+                <thead id="table-head"></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const ORDER_BY_FIELDS = ['date-of-week', 'years-of-life'];
+        const CSV_PATH = './data/playlist.csv';
+        const NOWRAP_FIELDS = ['date-of-week', 'years-of-life'];
+
+        // State
+        let data = [];
+        let headers = [];
+        let sortColumn = 'years-of-life';
+        let sortDirection = 'asc';
+
+        // CSV parsing function (handles quoted fields)
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            if (lines.length === 0) return { headers: [], data: [] };
+
+            // Parse header
+            const headerLine = lines[0];
+            headers = parseCSVLine(headerLine);
+
+            // Parse data rows
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                const values = parseCSVLine(lines[i]);
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+                data.push(row);
+            }
+
+            return { headers, data };
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // Escaped quote
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // Toggle quote state
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // Field separator
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim()); // Last field
+
+            return result;
+        }
+
+        // Sort functions
+        function sortData(column, direction) {
+            data.sort((a, b) => {
+                let aVal = a[column] || '';
+                let bVal = b[column] || '';
+
+                // Special handling for different column types
+                if (column === 'date-of-week') {
+                    // Parse dates (YYYY-MM-DD format)
+                    const aDate = new Date(aVal);
+                    const bDate = new Date(bVal);
+                    return direction === 'asc' ? aDate - bDate : bDate - aDate;
+                } else if (column === 'years-of-life') {
+                    // Parse year ranges (e.g., "1098–1179") - extract start year
+                    const aYear = parseInt(aVal.split('–')[0]) || 0;
+                    const bYear = parseInt(bVal.split('–')[0]) || 0;
+                    return direction === 'asc' ? aYear - bYear : bYear - aYear;
+                } else {
+                    // String comparison
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                    return 0;
+                }
+            });
+        }
+
+        function handleSort(column) {
+            if (sortColumn === column) {
+                // Toggle direction
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, default to ascending
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            sortData(sortColumn, sortDirection);
+            renderTable();
+        }
+
+        // Render functions
+        function renderTable() {
+            const thead = document.getElementById('table-head');
+            const tbody = document.getElementById('table-body');
+
+            // Render header
+            thead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+
+                if (ORDER_BY_FIELDS.includes(header)) {
+                    th.classList.add('sortable');
+                    if (sortColumn === header) {
+                        th.classList.add(`sort-${sortDirection}`);
+                    }
+                    th.addEventListener('click', () => handleSort(header));
+                }
+
+                if (NOWRAP_FIELDS.includes(header)) {
+                    th.classList.add('nowrap');
+                }
+
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Render body
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = headers.length;
+                cell.className = 'empty';
+                cell.textContent = 'No data available';
+                row.appendChild(cell);
+                tbody.appendChild(row);
+            } else {
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = row[header] || '';
+                        if (NOWRAP_FIELDS.includes(header)) {
+                            td.classList.add('nowrap');
+                        }
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showTable() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('table-container').style.display = 'block';
+        }
+
+        // Load CSV
+        async function loadCSV() {
+            try {
+                const response = await fetch(CSV_PATH, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+                }
+                const text = await response.text();
+                const parsed = parseCSV(text);
+                headers = parsed.headers;
+                data = parsed.data;
+
+                if (data.length === 0) {
+                    showError('CSV file is empty or contains no data rows.');
+                    return;
+                }
+
+                // Apply default sort
+                sortData(sortColumn, sortDirection);
+
+                showTable();
+                renderTable();
+            } catch (error) {
+                showError(`Error loading playlist data: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        loadCSV();
+    </script>
+</body>
+</html>
