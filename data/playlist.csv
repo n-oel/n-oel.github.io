@@ -1,8 +1,8 @@
-date-of-week,piece,composer-name,years-of-life,where,bio-note,tags,paladin
-2025-01-11,"O vis aeternitatis (O strength of eternity)","Hildegard von Bingen","1098–1179","Holy Roman Empire (Rhineland; modern Germany)","abbess, founded convents, visionary","choral, medieval, sacred, chant, modal, prayer","nifle"
-2026-01-18,"Vespro della Beata Vergine, SV 206: IX. Concerto. Audi coelum","Claudio Monteverdi","1567–1643","Italy (Mantua, Venice)","bridge figure between Renaissance and Baroque","sacred, choral, modal, early baroque, vespers","nifle"
-2026-02-15,"Symphony No. 7 — II. Allegretto","Ludwig van Beethoven","1770–1827","Germany / Austria (Bonn, Vienna)","pivotal Classical→Romantic composer","orchestral, classical, minor key, dramatic, rhythmic","nifle"
-2025-01-11,"Le Carnaval des Animaux: L’Eléphant","Camille Saint-Saëns","1835–1921","France","Romantic concert composer","piano, orchestral, programmatic, late romantic, humorous","olaf"
-2026-02-08,"Morning Mood (from Peer Gynt)","Edvard Grieg","1843–1907","Norway","national romantic, folk-inspired composer","orchestral, lyrical, pastoral, programmatic","olaf"
-2026-01-25,"Fantaisie persane (Persian)","Benjamin Godard","1849–1895","France","lyrical Romantic miniaturist","instrumental, character piece, exoticism, modal color","olaf"
-2026-02-01,"The Lark Ascending; Fantasia on a Theme by Thomas Tallis","Ralph Vaughan Williams","1872–1958","England","early-music revivalist, folk collector","pastoral, modal, sacred influence, reflective","nifle"
+date-of-week,years-of-life,composer-name,piece,where,bio-note,tags,paladin
+2025-01-11,"1098–1179","Hildegard von Bingen","O vis aeternitatis (O strength of eternity)","Holy Roman Empire (Rhineland; modern Germany)","abbess, founded convents, visionary","choral, medieval, sacred, chant, modal, prayer","nifle"
+2026-01-18,"1567–1643","Claudio Monteverdi","Vespro della Beata Vergine, SV 206: IX. Concerto. Audi coelum","Italy (Mantua, Venice)","bridge figure between Renaissance and Baroque","sacred, choral, modal, early baroque, vespers","nifle"
+2026-02-15,"1770–1827","Ludwig van Beethoven","Symphony No. 7 — II. Allegretto","Germany / Austria (Bonn, Vienna)","pivotal Classical→Romantic composer","orchestral, classical, minor key, dramatic, rhythmic","nifle"
+2025-01-11,"1835–1921","Camille Saint-Saëns","Le Carnaval des Animaux: L’Eléphant","France","Romantic concert composer","piano, orchestral, programmatic, late romantic, humorous","olaf"
+2026-02-08,"1843–1907","Edvard Grieg","Morning Mood (from Peer Gynt)","Norway","national romantic, folk-inspired composer","orchestral, lyrical, pastoral, programmatic","olaf"
+2026-01-25,"1849–1895","Benjamin Godard","Fantaisie persane (Persian)","France","lyrical Romantic miniaturist","instrumental, character piece, exoticism, modal color","olaf"
+2026-02-01,"1872–1958","Ralph Vaughan Williams","The Lark Ascending; Fantasia on a Theme by Thomas Tallis","England","early-music revivalist, folk collector","pastoral, modal, sacred influence, reflective","nifle"
